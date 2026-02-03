@@ -1,16 +1,20 @@
 import pandas as pd
 
 from .scraper import pars_link
+from .crawler import url_list
 
 
-inf = {}
 
+URL = "https://www.vinted.sk/catalog/2050-clothing"
 
-URL = "https://www.vinted.sk/items/8081898077-tricko?referrer=catalog"
+items = []
+i = 0
+for url in url_list(URL):
+    i+=1
+    items.append(pars_link(url))
+    if i == 5: break
 
-inf = pars_link(URL)
-
-df = pd.DataFrame([inf])
+df = pd.DataFrame(items)
 
 print(df)
 
