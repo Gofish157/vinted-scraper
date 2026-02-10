@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 
 from .config import OPTIONS, BASE
 
+ITEM_LINKS = (By.CSS_SELECTOR, 'a[href*="/items/"]')
+
 
 def url_list(url: str) -> list[str]:
     items = list()
@@ -14,9 +16,7 @@ def url_list(url: str) -> list[str]:
     try:
         browser.get(url)
         wait = WebDriverWait(browser, 10)
-        wait.until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, '[data-testid*="product-item-id"]')
-            ))
+        wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, '[data-testid*="product-item-id"]')))
         html = browser.page_source
         soup = BeautifulSoup(html, 'lxml')
         cards = soup.select('[data-testid*="product-item-id"]')
@@ -26,7 +26,7 @@ def url_list(url: str) -> list[str]:
                 href = urljoin(BASE, a.get('href'))
                 if href:
                     items.append(href)
-                    print()
+                    print(href)
         return items
     finally:
         browser.quit()
