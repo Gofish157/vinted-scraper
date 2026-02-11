@@ -8,7 +8,7 @@ from .config import OPTIONS
 browser = wd.Chrome(options=OPTIONS)
 
 
-URL = "https://www.vinted.sk/catalog/2050-clothing"
+URL = "https://www.vinted.sk/catalog?search_text=converse%20mu%C5%BEi"
 
 
 urls = url_list(URL)

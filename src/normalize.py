@@ -1,7 +1,64 @@
 import re
 
+ALPHA_RE = re.compile(r"^(XXXS|XXS|XS|S|M|L|XL|XXL|XXXL)$", re.I)
+WAIST_RE = re.compile(r"^W\s*(\d{2})$", re.I)
+EU_RE = re.compile(r"^(3[4-9]|4[0-9]|5[0-4])$", re.I)
 
-def condition_normalization(c):
+def _parce_part(s: str) -> dict:
+
+    if s == "Univerzálna": return {"size_system": "universal"}
+
+    m = ALPHA_RE.fullmatch(s)
+    if m:
+        return {"size_system": "alpha", "size_alpha": m.group(1).upper()}
+    
+    m = WAIST_RE.fullmatch(s)
+    if m:
+        return {"size_system": "waist", "size_waist": int(m.group(1))}
+    
+    m = EU_RE.fullmatch(s)
+    if m:
+        return {"size_system": "eu", "size_eu": int(m.group(1))}
+    
+    return {"size_system": "unknown"}
+
+
+def size_normalization(raw: str) -> dict:
+
+    out ={
+        "size_system": "unkwnow",
+        "size_alpha": None,
+        "size_eu": None,
+        "size_waist": None,
+        "raw": raw
+    }
+
+    if not raw: return out
+
+    parsed = [_parce_part(part.strip()) for part in raw.split("|")]
+
+    if not parsed:return out
+
+    systems = set()
+    for d in parsed:
+        systems.add(d.get("size_system", "unknown"))
+        size_system = d["size_system"]
+        out["size_system"] = size_system
+        if size_system == "alpha":
+            out["size_alpha"] = d["size_alpha"]
+        elif size_system == "waist":
+            out["size_waist"] = d["size_waist"]
+        elif size_system == "eu":
+            out["size_eu"] = d["size_eu"]
+    
+    systems.discard("unknown")
+    if len(systems) > 1:
+        out["size_system"] = "mixed"
+
+    return out
+    
+
+def condition_normalization(c: str):
     match c:
         case "Nové s visačkou":
             return 1
@@ -14,7 +71,7 @@ def condition_normalization(c):
         case "Uspokojivé":
             return 5
 
-def time_normalization(t):
+def time_normalization(t: str) -> int:
     match t:
         case "Práve teraz":
             return 0
@@ -37,6 +94,6 @@ def time_normalization(t):
         case _:
             return None
 
-def price_normalization(p):
-    return float(str(p).replace(",", "."))
+def price_normalization(p: str) -> float:
+    return float(p.replace(",", "."))
 

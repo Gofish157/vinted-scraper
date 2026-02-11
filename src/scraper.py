@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 from .config import OPTIONS
-from .normalize import time_normalization, price_normalization, condition_normalization
+from .normalize import time_normalization, price_normalization, condition_normalization, size_normalization
 
 
 def pick_text(soup, selector):
@@ -40,7 +40,7 @@ def pars_link(url: str, browser: wd) -> dict:
         "id": (url.split('/')[-1]).split('-')[0],
         "status": item_status,
         "name": item_name,
-        "size": item_size,
+        "size": size_normalization(item_size),
         "likes": likes_count,
         "price": price_normalization(price_with_fee),
         "upload_time": time_normalization(upload_date),
